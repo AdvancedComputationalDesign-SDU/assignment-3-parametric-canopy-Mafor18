@@ -27,6 +27,7 @@ import numpy as np
 from PIL import Image
 import matplotlib.pyplot as plt
 from matplotlib import colormaps
+import ghpythonlib.treehelpers as th
 
 # Recursion_params has not been added as a grasshopper parameter yet as it seems to only transfer as a list instead of a dictionary
 recursion_params = {
@@ -141,8 +142,44 @@ def generate_depth_map(surface, control_value, variation_type="Sine"):
     modified_surface = rg.NurbsSurface.CreateThroughPoints(
         modified_points, depth_divisions, depth_divisions, 3, 3, False, False
     )
-    
+
     return modified_surface
+
+def generate_surface_points(surface):
+    """
+    Generates points along a given surface.
+
+    Parameters:
+    - surface: The base surface (rg.Surface)
+
+    Returns:
+    - surface_points: points along the input surface as rg.Point3d
+    """
+    
+    # Set the domain the u (x) and v (y) directions
+    u_domain = surface.Domain(0)
+    v_domain = surface.Domain(1)  
+    
+    # Create an empty list to store modified points
+    modified_points = []
+
+    # Create a point grid with refinement depending on depth_division    
+    for i in range(depth_divisions):
+        u_param = u_domain[0] + (u_domain[1] - u_domain[0]) * i / (depth_divisions - 1)
+        for j in range(depth_divisions):
+            v_param = v_domain[0] + (v_domain[1] - v_domain[0]) * j / (depth_divisions - 1)
+            
+            # Evaluate the point on the surface at (u_param, v_param)
+            point = surface.PointAt(u_param, v_param)
+            
+            # Modify the Z-coordinate of the point
+            modified_point = rg.Point3d(point.X, point.Y, point.Z)
+            modified_points.append(modified_point)
+          
+    # Convert the list to a data tree
+    surface_points = th.list_to_tree(modified_points)
+
+    return surface_points
 
 # Divisions for the colormaps. Increase number to increase image resolution.
 u_divisions = v_divisions = 100
@@ -425,12 +462,13 @@ def generate_recursive_supports(start_point, params, depth=0):
 if base_surface and depth_map_control and tessellation_strategy and recursion_params and support_points:
     # Generate modified surface with depth map
     modified_surface = generate_depth_map(base_surface, depth_map_control,variation_type)
+    surface_points = generate_surface_points(modified_surface)
     
     # Generate and show the color map for the surface
     colored_depth_map_image = generate_depth_map_image(modified_surface, u_divisions, v_divisions, colormap = 'cool')
-    colored_depth_map_image.show()
-    # Save the image if desired
-    colored_depth_map_image.save("C:/Users/Martin/Documents/GitHub/assignment-3-parametric-canopy-Mafor18/images/depth_map_canopy_1.png")
+    # colored_depth_map_image.show()
+    # # Save the image if desired
+    # colored_depth_map_image.save("C:/Users/Martin/Documents/GitHub/assignment-3-parametric-canopy-Mafor18/images/depth_map_canopy_1.png")
 
     # Tessellate the modified surface
     canopy_mesh = tessellate_surface(modified_surface, tessellation_strategy)
