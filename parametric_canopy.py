@@ -11,7 +11,7 @@ structural system composed of:
 - A set of vertical supports
 
 The script also combines different strategies for surface tessellation, quadratic, triangular and hexagonal elements to achieve 
-a uniform tessellation of the input surface.
+a non-uniform tessellation of the input surface.
 
 Note: This script is intended to be used within Grasshopper's Python scripting component.
 """
@@ -23,18 +23,21 @@ import rhinoscriptsyntax as rs
 import math
 import random
 from scipy.spatial import Voronoi
-
+import numpy as np
+from PIL import Image
+import matplotlib.pyplot as plt
+from matplotlib import colormaps
 
 # Recursion_params has not been added as a grasshopper parameter yet as it seems to only transfer as a list instead of a dictionary
 recursion_params = {
- 'max_depth': int(3),
+ 'max_depth': 3,
  'angle': 30,
- 'length': 5,
+ 'length': 3,
  'length_reduction': 0.7,
- 'branches': 2,
- 'angle_variation': 15
+ 'branches': 3,
+ 'angle_variation': 15,
+ 'vertical_angle': 45
 }
-
 
 def ensure_surface(geometry):
     """
@@ -70,6 +73,7 @@ try:
     print("Successfully converted to a Surface!")
 except ValueError as e:
     print(f"Error: {e}")
+
 
 # Makes sure the depth divisions are passed as integers
 depth_divisions = int(depth_divisions)
@@ -140,6 +144,56 @@ def generate_depth_map(surface, control_value, variation_type="Sine"):
     
     return modified_surface
 
+# Divisions for the colormaps. Increase number to increase image resolution.
+u_divisions = v_divisions = 100
+
+def generate_depth_map_image(surface, u_divisions, v_divisions, colormap='viridis'):
+    """
+    Generates a 2D depth map with a specified colormap based on the Z-values of the surface.
+
+    Parameters:
+    - surface: The input surface (rg.Surface)
+    - u_divisions: Number of divisions in the U direction for sampling (int)
+    - v_divisions: Number of divisions in the V direction for sampling (int)
+    - colormap: Name of the colormap to apply (string)
+
+    Returns:
+    - colored_depth_map_image: A Pillow Image object with the depth map in the specified colormap.
+    """
+    # Get the domain of the surface.
+    u_domain = surface.Domain(0)
+    v_domain = surface.Domain(1)
+
+    # Empty list to store z_values.
+    z_values = []
+
+    # Sample the surface at regular intervals in the U and V directions.
+    for i in range(u_divisions):
+        u_param = u_domain[0] + (u_domain[1] - u_domain[0]) * i / (u_divisions - 1)
+        row_z_values = []
+        for j in range(v_divisions):
+            v_param = v_domain[0] + (v_domain[1] - v_domain[0]) * j / (v_divisions - 1)
+            point = surface.PointAt(u_param, v_param)
+            row_z_values.append(point.Z)
+        z_values.append(row_z_values)
+
+    # Convert the values into a numpy array.
+    z_values = np.array(z_values)
+
+    # Normalize the Z-values in range of 0-1.
+    z_min = np.min(z_values)
+    z_max = np.max(z_values)
+    normalized_z = (z_values - z_min) / (z_max - z_min)
+
+    # Apply the colormap
+    colormap_function = colormaps[colormap]
+    colored_data = colormap_function(normalized_z)
+    
+    # Convert the colormap to desired type
+    colored_image = (colored_data[:, :, :3] * 255).astype(np.uint8)
+    colored_depth_map_image = Image.fromarray(colored_image)
+
+    return colored_depth_map_image
 
 # Ensure mesh_rinfement is passed as an integer instead of float.
 # Increase to mesh refinement parameter will create a finer mesh.
@@ -305,6 +359,7 @@ def extract_mesh_edges(mesh):
 
     return edge_lines
 
+
 def generate_recursive_supports(start_point, params, depth=0):
     """
     Generates recursive geometry (e.g., fractal patterns) for vertical supports.
@@ -315,48 +370,82 @@ def generate_recursive_supports(start_point, params, depth=0):
     - depth: The current recursion depth
 
     Returns:
-    - curves: A list of generated curves representing the supports
+    - curves: A list of generated Rhino.Geometry.LineCurve objects representing the supports
     """
     # Base case for recursion
     if depth >= params['max_depth']:
         return []
     
-    # TODO: Implement recursive geometry generation logic
-    # Hints:
-    # - Calculate the direction and length of branches
-    # - Create lines or curves for each branch
-    # - Use recursion to generate sub-branches
-    pass
+    # Calculate the end point for the main branch
+    length = params['length'] * (params['length_reduction'] ** depth)
+    end_point = rg.Point3d(
+        start_point.X,
+        start_point.Y,
+        start_point.Z + length
+    )
+    
+    # Create the main vertical line
+    line = rg.LineCurve(start_point, end_point)
+    curves = [line]
+
+    # Create branches
+    for i in range(params['branches']):
+        # Evenly distribute branches in XY-plane
+        base_angle = 360 / params['branches'] * i  
+        angle_variation = random.uniform(-params['angle_variation'], params['angle_variation'])
+        branch_angle_xy = math.radians(base_angle + angle_variation)
+
+        # Adjust angle between Z-axis and XY-plane
+        z_to_xy_radians = math.radians(params['vertical_angle'])
+        branch_vector = rg.Vector3d(
+            math.cos(branch_angle_xy) * math.sin(z_to_xy_radians),  # X
+            math.sin(branch_angle_xy) * math.sin(z_to_xy_radians),  # Y
+            math.cos(z_to_xy_radians)                               # Z
+        )
+        branch_vector.Unitize()
+        branch_vector *= length
+
+        # Calculate branch end point
+        branch_end_point = rg.Point3d(
+            end_point.X + branch_vector.X,
+            end_point.Y + branch_vector.Y,
+            end_point.Z + branch_vector.Z
+        )
+        
+        # Create the branch line
+        branch_line = rg.LineCurve(end_point, branch_end_point)
+        curves.append(branch_line)
+
+        # Recursively generate sub-branches
+        curves.extend(generate_recursive_supports(branch_end_point, params, depth + 1))
+
+    return curves
 
 
-# Main execution (This code would be inside the GhPython component)
-# Inputs from Grasshopper should be connected to the respective variables
-# base_surface, control_value, recursion_params, tessellation_strategy, support_points
-
-if base_surface and depth_map_control and tessellation_strategy: #and recursion_params and support_points:
+if base_surface and depth_map_control and tessellation_strategy and recursion_params and support_points:
     # Generate modified surface with depth map
-    # TODO: Call generate_depth_map and assign the result to modified_surface
     modified_surface = generate_depth_map(base_surface, depth_map_control,variation_type)
     
+    # Generate and show the color map for the surface
+    colored_depth_map_image = generate_depth_map_image(modified_surface, u_divisions, v_divisions, colormap = 'cool')
+    colored_depth_map_image.show()
+    # Save the image if desired
+    colored_depth_map_image.save("C:/Users/Martin/Documents/GitHub/assignment-3-parametric-canopy-Mafor18/images/depth_map_canopy_1.png")
+
     # Tessellate the modified surface
-    # TODO: Call tessellate_surface and assign the result to canopy_mesh
     canopy_mesh = tessellate_surface(modified_surface, tessellation_strategy)
     
     # Extract and visualize edges of the tessellated mesh
     canopy_edges = extract_mesh_edges(canopy_mesh)
 
     # # Generate vertical supports
-    # supports = []
-    # for pt in support_points:
-    # #     # TODO: Call generate_recursive_supports and extend the supports list
-    #     curves = generate_recursive_supports(pt, recursion_params)
-    #     supports.extend(curves)
-    #     pass
+    supports = []
+    for pt in support_points:
+        curves = generate_recursive_supports(pt, recursion_params)
+        supports.extend(curves)
+        pass
     
-    # Assign outputs to Grasshopper components
-    # Output variables (e.g., canopy_mesh, supports) should be connected to the component outputs
-
 else:
     # Handle cases where inputs are not provided
-    print("error")
+    print("Skipped something because of missing input")
     pass
