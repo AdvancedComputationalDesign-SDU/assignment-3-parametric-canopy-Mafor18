@@ -32,12 +32,11 @@ import ghpythonlib.treehelpers as th
 # Recursion_params has not been added as a grasshopper parameter yet as it seems to only transfer as a list instead of a dictionary
 recursion_params = {
  'max_depth': 3,
- 'angle': 30,
- 'length': 3,
- 'length_reduction': 0.7,
+ 'vertical_angle': 20,
+ 'length': 4,
+ 'length_reduction': 0.5,
  'branches': 3,
- 'angle_variation': 15,
- 'vertical_angle': 45
+ 'angle_variation': 15
 }
 
 def ensure_surface(geometry):
@@ -51,7 +50,7 @@ def ensure_surface(geometry):
     Returns:
     - A Rhino.Geometry.Surface object, if convertible.
     """
-    # Coerce geometry to Rhino object
+    # Coerce geometry to a Rhino object
     geometry = rs.coercegeometry(geometry)
 
     # Check if the geometry needs altering, skip if yes.
@@ -79,7 +78,7 @@ except ValueError as e:
 # Makes sure the depth divisions are passed as integers
 depth_divisions = int(depth_divisions)
 
-def generate_depth_map(surface, control_value, variation_type="Sine"):
+def generate_depth_map(surface, control_value, variation_type=""):
     """
     Modifies the input surface based on a control function to create a depth map.
 
@@ -182,9 +181,9 @@ def generate_surface_points(surface):
     return surface_points
 
 # Divisions for the colormaps. Increase number to increase image resolution.
-u_divisions = v_divisions = 100
+u_divisions = v_divisions = 200
 
-def generate_depth_map_image(surface, u_divisions, v_divisions, colormap='viridis'):
+def generate_depth_map_image(surface, u_divisions, v_divisions, colormap=''):
     """
     Generates a 2D depth map with a specified colormap based on the Z-values of the surface.
 
@@ -236,7 +235,7 @@ def generate_depth_map_image(surface, u_divisions, v_divisions, colormap='viridi
 # Increase to mesh refinement parameter will create a finer mesh.
 mesh_refinement = int(mesh_refinement)
 
-def tessellate_surface(surface, strategy='quad'):
+def tessellate_surface(surface, strategy=''):
     """
     Tessellates the input surface using the specified strategy.
 
@@ -251,8 +250,8 @@ def tessellate_surface(surface, strategy='quad'):
     u_domain = surface.Domain(0)
     v_domain = surface.Domain(1)
 
-    u_divisions = mesh_refinement  
-    v_divisions = mesh_refinement
+    u_divisions = v_divisions = mesh_refinement 
+    
 
     # Quadratic tessellation
     if strategy == 'quad':
@@ -331,7 +330,7 @@ def tessellate_surface(surface, strategy='quad'):
                 # Compute center of the hexagon
                 center_u = u_domain[0] + col * 1.5 * hex_radius
                 center_v = v_domain[0] + row * hex_height
-                if col % 2 != 0:  # Offset odd columns
+                if col % 2 != 0: 
                     center_v += hex_height / 2
                 
                 if center_u > u_domain[1] or center_v > v_domain[1]:
@@ -409,7 +408,7 @@ def generate_recursive_supports(start_point, params, depth=0):
     Returns:
     - curves: A list of generated Rhino.Geometry.LineCurve objects representing the supports
     """
-    # Base case for recursion
+    # Stops recursion if depth increases higher than max_depth to prevent infinite recursion
     if depth >= params['max_depth']:
         return []
     
@@ -468,7 +467,7 @@ if base_surface and depth_map_control and tessellation_strategy and recursion_pa
     colored_depth_map_image = generate_depth_map_image(modified_surface, u_divisions, v_divisions, colormap = 'cool')
     # colored_depth_map_image.show()
     # # Save the image if desired
-    # colored_depth_map_image.save("C:/Users/Martin/Documents/GitHub/assignment-3-parametric-canopy-Mafor18/images/depth_map_canopy_1.png")
+    # colored_depth_map_image.save("C:/Users/Martin/Documents/GitHub/assignment-3-parametric-canopy-Mafor18/images/roof_canopy_depth_map.png")
 
     # Tessellate the modified surface
     canopy_mesh = tessellate_surface(modified_surface, tessellation_strategy)
@@ -481,7 +480,7 @@ if base_surface and depth_map_control and tessellation_strategy and recursion_pa
     for pt in support_points:
         curves = generate_recursive_supports(pt, recursion_params)
         supports.extend(curves)
-        pass
+
     
 else:
     # Handle cases where inputs are not provided
