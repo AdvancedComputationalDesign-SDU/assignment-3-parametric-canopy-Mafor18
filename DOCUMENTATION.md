@@ -158,11 +158,11 @@
 
 1. **Variation 1: [Sine Canopy]**
 
-   ![Sine Canopy](images/Sine_Canopy.jpg)
-   ![Sine Canopy Front](images/Sine_Canopy_Front.jpg)
-   ![Sine Canopy Side](images/Sine_Canopy_Side.jpg)
-   ![Sine Canopy Top](images/Sine_Canopy_Top.jpg)
-   ![Sine Canopy depth map](images/sine_canopy_depth_map.jpg)
+   ![Sine Canopy](images/Sine_Canopy.png)
+   ![Sine Canopy Front](images/Sine_Canopy_Front.png)
+   ![Sine Canopy Side](images/Sine_Canopy_Side.png)
+   ![Sine Canopy Top](images/Sine_Canopy_Top.png)
+   ![Sine Canopy depth map](images/sine_canopy_depth_map.png)
 
    - **Parameters**:
      - `depth_divisions`: [8]
@@ -186,11 +186,11 @@
 
 2. **Variation 2: [Ripple Canopy]**
 
-   ![Ripple canopy](images/Ripple_Canopy.jpg)
-   ![Ripple Canopy Front](images/Ripple_Canopy_Front.jpg)
-   ![Ripple Canopy Side](images/Ripple_Canopy_Side.jpg)
-   ![Ripple Canopy Top](images/Ripple_Canopy_Top.jpg)
-   ![Ripple Canopy depth map](images/ripple_canopy_depth_map.jpg)
+   ![Ripple canopy](images/Ripple_Canopy.png)
+   ![Ripple Canopy Front](images/Ripple_Canopy_Front.png)
+   ![Ripple Canopy Side](images/Ripple_Canopy_Side.png)
+   ![Ripple Canopy Top](images/Ripple_Canopy_Top.png)
+   ![Ripple Canopy depth map](images/ripple_canopy_depth_map.png)
    - **Parameters**:
      - `depth_divisions`: [20]
      - `depth_map_control`: [3]
@@ -209,11 +209,11 @@
 
 3. **Variation 3: [Roof Canopy]**
 
-   ![Roof canopy](images/Roof_Canopy.jpg)
-   ![Roof Canopy Front](images/Roof_Canopy_Front.jpg)
-   ![Roof Canopy Side](images/Roof_Canopy_Side.jpg)
-   ![Roof Canopy Top](images/Roof_Canopy_Top.jpg)
-   ![Roof Canopy depth map](images/roof_canopy_depth_map.jpg)
+   ![Roof canopy](images/Roof_Canopy.png)
+   ![Roof Canopy Front](images/Roof_Canopy_Front.png)
+   ![Roof Canopy Side](images/Roof_Canopy_Side.png)
+   ![Roof Canopy Top](images/Roof_Canopy_Top.png)
+   ![Roof Canopy depth map](images/roof_canopy_depth_map.png)
    - **Parameters**:
      - `depth_divisions`: [12]
      - `depth_map_control`: [8]
