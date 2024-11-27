@@ -159,14 +159,19 @@
 1. **Variation 1: [Sine Canopy]**
    
    Sine Canopy
+   
    ![Sine Canopy](images/Sine_Canopy.png)
    Sine Canopy front view
+   
    ![Sine Canopy Front](images/Sine_Canopy_Front.png)
    Sine Canopy side view
+   
    ![Sine Canopy Side](images/Sine_Canopy_Side.png)
    Sine Canopy top view
+   
    ![Sine Canopy Top](images/Sine_Canopy_Top.png)
    Sine Canopy depth map
+   
    ![Sine Canopy depth map](images/sine_canopy_depth_map.png)
 
    - **Parameters**:
@@ -189,17 +194,22 @@
         'branches': 2
         'angle_variation': 15
 
-2. **Variation 2: [Ripple Canopy]**
+3. **Variation 2: [Ripple Canopy]**
 
    Ripple Canopy
+   
    ![Ripple canopy](images/Ripple_Canopy.png)
    Ripple Canopy front
+   
    ![Ripple Canopy Front](images/Ripple_Canopy_Front.png)
    Ripple Canopy side
+   
    ![Ripple Canopy Side](images/Ripple_Canopy_Side.png)
    Ripple Canopy top
+   
    ![Ripple Canopy Top](images/Ripple_Canopy_Top.png)
    Ripple Canopy depth map
+   
    ![Ripple Canopy depth map](images/ripple_canopy_depth_map.png)
    - **Parameters**:
      - `depth_divisions`: [20]
@@ -217,17 +227,22 @@
         'branches': 4
         'angle_variation': 15
 
-3. **Variation 3: [Roof Canopy]**
+4. **Variation 3: [Roof Canopy]**
 
    Roof Canopy
+   
    ![Roof canopy](images/Roof_Canopy.png)
    Roof Canopy front
+   
    ![Roof Canopy Front](images/Roof_Canopy_Front.png)
    Roof Canopy side
+   
    ![Roof Canopy Side](images/Roof_Canopy_Side.png)
    Roof Canopy top
+   
    ![Roof Canopy Top](images/Roof_Canopy_Top.png)
    Roof Canopy depth map
+   
    ![Roof Canopy depth map](images/roof_canopy_depth_map.png)
    - **Parameters**:
      - `depth_divisions`: [12]
