@@ -311,13 +311,11 @@
   - **Solution**: NOT SOLVED. IDEA: Use the end point of branches to connect to surface points.
 
 - **Challenge 13**: Add more complex tessellation.
-  - **Solution**: NOT SOLVED.
+  - **Solution**: NOT SOLVED. Attempted to use Scipy to achive more complex tessellation structure.
 
 ---
 
 ## References
-
-*(List any resources you used or found helpful during the assignment.)*
 
 - **Python for CAD Applications**:
   - Rhino.Python Guides
@@ -336,9 +334,9 @@
 
 - **General information**
 - Lecture slides
-- [functions] (https://www.benjoffe.com/code/tools/functions3d/examples) (function ideas)
+- [functions](https://www.benjoffe.com/code/tools/functions3d/examples) (function ideas)
 - [chatgpt.com](https://chatgpt.com/) (general questions)
-- [colormaps] (https://matplotlib.org/stable/users/explain/colors/colormaps.html)
+- [colormaps](https://matplotlib.org/stable/users/explain/colors/colormaps.html)
 
 ---
 
